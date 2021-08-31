@@ -1,0 +1,22 @@
+{{- if .Values.istio.enabled -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ include "aylee-front.fullname" . }}
+  labels:
+    {{- include "aylee-front.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.istio.gateway.selector }}
+  selector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      {{- with .Values.istio.gateway.servers.hosts }}
+      hosts:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

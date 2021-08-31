@@ -1,0 +1,29 @@
+{{- if .Values.istio.enabled -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "aylee-front.fullname" . }}
+  labels:
+    {{- include "aylee-front.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.istio.virtualService.hosts }}
+  hosts:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  gateways:
+    - {{ include "aylee-front.fullname" . }}
+  http:
+    - name: Canary
+      match:
+        - headers:
+            rollout-version:
+              exact: "Canary"
+      route:
+        - destination:
+            host: {{ include "aylee-front.fullname" . }}
+            subset: Canary
+    - name: Random
+      route:
+        - destination:
+            host: {{ include "aylee-front.fullname" . }}
+{{- end }}

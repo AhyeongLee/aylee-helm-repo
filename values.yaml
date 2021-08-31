@@ -1,0 +1,116 @@
+# Default values for aylee-front.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: docker.io/aylee5/aylee-sample-front
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "helm-2"
+
+restartPolicy: Always
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+canary:
+  steps: [{ setWeight: 30 }, { pause: {} }]
+
+revisionHistoryLimit: 2
+
+service:
+  type: ClusterIP
+  port: 8080
+
+istio:
+  enabled: true
+  annotations: { sidecar.istio.io/inject: "true" }
+  gateway:
+    selector:
+      istio: ingressgateway
+    servers:
+      hosts: [aylee-demo.apps.ldcc-cluster.gavd.p1.openshiftapps.com]
+  virtualService:
+    hosts: [aylee-demo.apps.ldcc-cluster.gavd.p1.openshiftapps.com]
+
+resources:
+  {
+    limits: { cpu: 200m, memory: 256Mi },
+    requests: { cpu: 200m, memory: 256Mi },
+  }
+
+env:
+  [
+    { name: NODE_NAME, valueFrom: { fieldRef: { fieldPath: spec.nodeName } } },
+    { name: POD_NAME, valueFrom: { fieldRef: { fieldPath: metadata.name } } },
+    {
+      name: NAMESPACE,
+      valueFrom: { fieldRef: { fieldPath: metadata.namespace } },
+    },
+    { name: POD_IP, valueFrom: { fieldRef: { fieldPath: status.podIP } } },
+    { name: NODE_IP, valueFrom: { fieldRef: { fieldPath: spec.nodeName } } },
+  ]
+
+startupProbe:
+  {
+    httpGet: { path: /actuator/health/liveness, port: 8080 },
+    timeoutSeconds: 5,
+    successThreshold: 1,
+    failureThreshold: 30,
+    periodSeconds: 10,
+  }
+readinessProbe:
+  {
+    httpGet: { path: /actuator/health/readiness, port: 8080 },
+    timeoutSeconds: 5,
+    successThreshold: 1,
+    failureThreshold: 3,
+    periodSeconds: 10,
+  }
+livenessProbe:
+  {
+    httpGet: { path: /actuator/health/liveness, port: 8080 },
+    timeoutSeconds: 5,
+    successThreshold: 1,
+    failureThreshold: 3,
+    periodSeconds: 10,
+  }
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
