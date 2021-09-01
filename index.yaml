@@ -3,12 +3,12 @@ entries:
   aylee-front:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2021-08-31T13:49:23.782606+09:00"
+    created: "2021-09-01T09:12:32.37775+09:00"
     description: A Helm chart for Kubernetes
-    digest: 66bd1cc76288f87dc274977f11d271459dda98e9ff5b3bbebba773ab2c7af2a1
+    digest: 83d5b7051bfc60534e169af11e1023be61c71f8f2dcefa773f699f0deb1fedee
     name: aylee-front
     type: application
     urls:
     - aylee-front-0.1.0.tgz
     version: 0.1.0
-generated: "2021-08-31T13:49:23.780365+09:00"
+generated: "2021-09-01T09:12:32.376449+09:00"
